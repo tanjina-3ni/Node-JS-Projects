@@ -1,13 +1,21 @@
 # Chat Room
 
-Realtime chat app with websockets using Node.js, Express and Socket.io with Vanilla JS on the frontend with a custom UI
+This is a realtime chat app. Connected users in a room can communicate. They can send private message to a specific user as well.
 
-# Installation Process
+## Tools
+- Node.js 
+- Express 
+- Socket.io 
+- Vanilla JS (frontend)
 
-npm install </br>
-npm install express socket.io moment </br>
-npm install -D nodemon </br>
+## Installation Process
 
-# How To run
+- npm install
+- npm install express socket.io moment 
+- npm install -D nodemon 
 
-npm run dev
+## How To run
+
+- nodemon server.js <br>
+OR <br>
+- npm run dev <br>
