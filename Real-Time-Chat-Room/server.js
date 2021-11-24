@@ -12,7 +12,7 @@ const io = socketio(server);
 // Set static folder
 app.use(express.static(path.join(__dirname, 'public')));
 
-const botName = 'ChatCord Bot';
+const botName = '';
 
 // Run when client connects
 io.on('connection', socket => {
@@ -35,17 +35,19 @@ io.on('connection', socket => {
     });
 
     // Listen for chat message
-    socket.on('chatMessage', ({msg, status})=> {
+    socket.on('chatMessage', msg=> {
         const user = getCurrentUser(socket.id);
-
+        const status = '';
         io.to(user.room).emit('message', formatMessage(user.username, msg, status));
     });
 
     //private message
-    socket.on('privateMessage', ({msg,sendadd,status}) => {
+    socket.on('privateMessage', ({msg,sendadd}) => {
         const user = getCurrentUser(socket.id);
+        const status = " (Private message)";
         //console.log({msg,sendadd});
         io.to(sendadd).emit('message', formatMessage(user.username, msg, status));
+        io.to(user.id).emit('message', formatMessage(user.username, msg, status));
     });
 
     // Runs when a client disconnects

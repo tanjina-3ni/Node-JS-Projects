@@ -38,15 +38,14 @@ chatForm.addEventListener('submit', e => {
     const msg = e.target.elements.msg.value;
     //const select = e.target.elements.select;
     const sendadd = uid;
-    const status = "";
     //console.log(sendadd);
     // Emit message to server
     if (sendadd == ""){
-        socket.emit('chatMessage', {msg, status});
+        socket.emit('chatMessage', msg);
     }
     else {
-        const status = " (Private)";
-        socket.emit('privateMessage', {msg, sendadd, status});
+        
+        socket.emit('privateMessage', {msg, sendadd});
     }
     
     // Clear input

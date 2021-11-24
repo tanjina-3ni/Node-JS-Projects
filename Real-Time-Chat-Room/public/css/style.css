@@ -4,7 +4,7 @@
 	--dark-color-a: #3d484d;
 	--dark-color-b: #4c4d4e;
 	--light-color: #e6e9ff;
-	--success-color: #5cb85c;
+	--success-color: #02ac02;
 	--error-color: #d9534f;
 }
 
@@ -29,13 +29,19 @@ a {
 	text-decoration: none;
 }
 
-.btn {
+.btn, .btnl{
 	cursor: pointer;
 	padding: 5px 15px;
-	background: var(--light-color);
-	color: var(--dark-color-a);
 	border: 0;
 	font-size: 17px;
+}
+.btn{
+	background: var(--success-color);
+	color: white;
+}
+
+.btnl{
+	background: var(--light-color);
 }
 
 /* Chat Page */
