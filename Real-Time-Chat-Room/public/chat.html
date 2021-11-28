@@ -6,13 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
     <link rel="stylesheet" href="css/style.css">
-    <title>ChatCord App</title>
+    <link rel="shortcut icon" href="#" />
+    <title>Chat Room App</title>
 </head>
 
 <body>
-    <div class="chat-container">
+    <div id="chat-container" class="chat-container" style="display: block;">
         <header class="chat-header">
             <h1><i class="fas fa-smile" style="color: yellow;"></i> Chat Room</h1>
+            <button id="video"><i class="fas fa-video"></i></button>
+            <button id="acc" style="display: none; padding:5px; font-size: 18px;">Accept</i></button>
             <a href="index.html" class="btnl">Leave Room</a>
         </header>
         <main class="chat-main">
@@ -33,6 +36,11 @@
                 <button class="btn"><i class="fas fa-paper-plane"></i> Send</button>
             </form>
         </div>
+    </div>
+
+    <div id="video-chat-container" class="video-position" style="display: none">
+        <video id="local-video" autoplay="autoplay" muted="muted"></video>
+        <video id="remote-video" autoplay="autoplay"></video>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.10.1/qs.min.js" integrity="sha512-aTKlYRb1QfU1jlF3k+aS4AqTpnTXci4R79mkdie/bp6Xm51O5O3ESAYhvg6zoicj/PD6VYY0XrYwsWLcvGiKZQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>

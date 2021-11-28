@@ -3,7 +3,7 @@ const http = require('http');
 const express = require('express');
 const socketio = require('socket.io');
 const formatMessage = require('./utils/messages');
-const { userJoin, getCurrentUser, userLeave, getRoomUsers } = require('./utils/users');
+const { userJoin, getCurrentUser, userLeave, getRoomUsers, getRoomUsersNumber } = require('./utils/users');
 
 const app = express();
 const server = http.createServer(app);
@@ -26,12 +26,16 @@ io.on('connection', socket => {
 
         // Broadcast when a user connects
         socket.broadcast.to(user.room).emit('message', formatMessage(botName, `${user.username} has joined the chat`,''));
+        
+        io.to(user.room).emit('user-id',socket.id);
 
         // Send users and room info
         io.to(user.room).emit('roomUsers', {
             room: user.room,
-            users: getRoomUsers(user.room)
+            users: getRoomUsers(user.room),
         });
+
+        
     });
 
     // Listen for chat message
@@ -64,6 +68,40 @@ io.on('connection', socket => {
             users: getRoomUsers(user.room)
         });
 
+    });
+
+    socket.on('joinCall', (roomId) => {
+        const user = getCurrentUser(socket.id);
+        console.log(roomId);
+        socket.join(roomId);
+        socket.to(user.room).emit('chat-room');
+        socket.emit('room_created', roomId);
+      });
+
+    socket.on('acceptCall', (roomId) => {
+        console.log(`Joining room ${roomId} and emitting room_joined socket event`);
+        socket.join(roomId);
+        socket.emit('room_joined', roomId);
+    });
+
+    socket.on('start_call', (roomId) => {
+        console.log('start call');
+        socket.broadcast.to(roomId).emit('start_call');
+    });
+
+    socket.on('webrtc_offer', (event) => {
+        console.log(`Broadcasting webrtc_offer event to peers in room ${event.roomId}`)
+        socket.broadcast.to(event.roomId).emit('webrtc_offer', event.sdp)
+    });
+
+    socket.on('webrtc_answer', (event) => {
+        console.log(`Broadcasting webrtc_answer event to peers in room ${event.roomId}`)
+        socket.broadcast.to(event.roomId).emit('webrtc_answer', event.sdp)
+    });
+
+    socket.on('webrtc_ice_candidate', (event) => {
+        console.log(`Broadcasting webrtc_ice_candidate event to peers in room ${event.roomId}`)
+        socket.broadcast.to(event.roomId).emit('webrtc_ice_candidate', event);
     });
     
 });

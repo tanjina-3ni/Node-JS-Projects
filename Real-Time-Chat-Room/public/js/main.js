@@ -1,8 +1,14 @@
+const chatContainer = document.getElementById('chat-container');
 const chatForm = document.getElementById('chat-form');
 const chatMessages = document.querySelector('.chat-messages');
 const roomName = document.getElementById('room-name');
 const userList = document.getElementById('users');
 const select = document.getElementById('dropdown');
+const video = document.getElementById('video');
+const videoChatContainer = document.getElementById('video-chat-container');
+const localVideoComponent = document.getElementById('local-video');
+const remoteVideoComponent = document.getElementById('remote-video');
+const acc = document.getElementById('acc');
 
 // Get username and room from URL 
 const { username, room } = Qs.parse(location.search, {
@@ -11,18 +17,46 @@ const { username, room } = Qs.parse(location.search, {
 
 const socket = io();
 
+// video
+const mediaConstraints = {
+    audio: true,
+    video: { width: 1280, height: 720 },
+}
+let localStream
+let remoteStream
+let isCaller
+let rtcPeerConnection // Connection between the local device and the remote peer.
+let roomId
+
+// Free public STUN servers provided by Google.
+const iceServers = {
+    iceServers: [
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:stun1.l.google.com:19302' },
+        { urls: 'stun:stun2.l.google.com:19302' },
+        { urls: 'stun:stun3.l.google.com:19302' },
+        { urls: 'stun:stun4.l.google.com:19302' },
+    ],
+}
+
 // Join chatroom
 socket.emit('joinroom', { username, room });
 
+let userID;
+
+socket.on('user-id',ID=>{
+    userID = ID;
+    //console.log(userID);
+});
+
 // Get room and users
-socket.on('roomUsers', ({ room, users }) => {
+socket.on('roomUsers', ({ room, users}) => {
     outputRoomName(room);
     outputUsers(users);
 });
 
 // Message from server
 socket.on('message', message => {
-    console.log('ok');
     console.log(message);
     outputMessage(message);
 
@@ -33,7 +67,6 @@ socket.on('message', message => {
 // Message submit
 chatForm.addEventListener('submit', e => {
     e.preventDefault();
-
     // Get message
     const msg = e.target.elements.msg.value;
     //const select = e.target.elements.select;
@@ -60,7 +93,7 @@ function outputMessage(message) {
     div.classList.add('message');
     if(username===message.username){
         div.innerHTML = `<div id="send-message">
-            <p class="meta">Me (${message.username}) <span>${message.time}</span><span>${message.status}</span></p>
+            <p class="meta">${message.username} <span>${message.time}</span><span>${message.status}</span></p>
             <p class="text">
             ${message.text}
             </p>
@@ -68,7 +101,7 @@ function outputMessage(message) {
     }
     else{
         div.innerHTML = `<div id="received-message">
-            <p class="meta">${message.username} <span>${message.time}</span><span>${message.status}</span></p>
+            <p class="meta">${message.username} <span>${message.status}</span><span>${message.time}</span></p>
             <p class="text">
             ${message.text}
             </p>
@@ -105,3 +138,150 @@ function sendadd(){
     uid = select.value; 
 }
 
+// video call
+video.addEventListener('click', async() => {
+    //socket.emit('start_call', room);
+    const roomId = 1;
+    socket.emit('joinCall', roomId);
+    showVideoConference();
+});
+
+socket.on('room_created', async () => {
+    console.log('Socket event callback: room_created')
+    //video.style = 'color: green';
+    await setLocalStream(mediaConstraints);
+    isCaller = 1;
+});
+
+socket.on('chat-room', async () => {
+    //console.log(' room_created')
+    acc.style = 'display: block';
+    acc.addEventListener('click', async() => {
+        //socket.emit('start_call', room);
+        const roomId = 1;
+        socket.emit('acceptCall', roomId);
+        showVideoConference();
+    });
+});
+  
+socket.on('room_joined', async () => {
+    console.log('Socket event callback: room_joined');
+    await setLocalStream(mediaConstraints);
+    socket.emit('start_call', roomId);
+    isCaller = 0;
+});
+
+socket.on('start_call', async () => {
+    console.log('Socket event callback: start_call');
+  
+    if (isCaller==1) {
+      rtcPeerConnection = new RTCPeerConnection(iceServers);
+      addLocalTracks(rtcPeerConnection);
+      rtcPeerConnection.ontrack = setRemoteStream;
+      rtcPeerConnection.onicecandidate = sendIceCandidate;
+      await createOffer(rtcPeerConnection);
+    }
+});
+
+socket.on('webrtc_offer', async (event) => {
+    console.log('Socket event callback: webrtc_offer')
+  
+    if (isCaller==0) {
+      rtcPeerConnection = new RTCPeerConnection(iceServers)
+      addLocalTracks(rtcPeerConnection)
+      rtcPeerConnection.ontrack = setRemoteStream
+      rtcPeerConnection.onicecandidate = sendIceCandidate
+      rtcPeerConnection.setRemoteDescription(new RTCSessionDescription(event))
+      await createAnswer(rtcPeerConnection)
+    }
+});
+
+socket.on('webrtc_answer', (event) => {
+    console.log('Socket event callback: webrtc_answer')
+  
+    rtcPeerConnection.setRemoteDescription(new RTCSessionDescription(event));
+});
+  
+socket.on('webrtc_ice_candidate', (event) => {
+    console.log('Socket event callback: webrtc_ice_candidate')
+
+    // ICE candidate configuration.
+    var candidate = new RTCIceCandidate({
+        sdpMLineIndex: event.label,
+        candidate: event.candidate,
+    })
+    rtcPeerConnection.addIceCandidate(candidate);
+})
+  
+// video call functions
+function showVideoConference() {
+    chatContainer.style = 'display: none';
+    videoChatContainer.style = 'display: block';
+}
+
+async function setLocalStream(mediaConstraints) {
+    let stream
+    try {
+      stream = await navigator.mediaDevices.getUserMedia(mediaConstraints)
+    } catch (error) {
+      console.error('Could not get user media', error)
+    }
+  
+    localStream = stream
+    localVideoComponent.srcObject = stream
+}
+
+function addLocalTracks(rtcPeerConnection) {
+    localStream.getTracks().forEach((track) => {
+      rtcPeerConnection.addTrack(track, localStream);
+    });
+}
+  
+async function createOffer(rtcPeerConnection) {
+    let sessionDescription
+    try {
+        sessionDescription = await rtcPeerConnection.createOffer();
+        rtcPeerConnection.setLocalDescription(sessionDescription);
+    } catch (error) {
+        console.error(error);
+    }
+
+    socket.emit('webrtc_offer', {
+        type: 'webrtc_offer',
+        sdp: sessionDescription,
+        roomId,
+    })
+}
+
+async function createAnswer(rtcPeerConnection) {
+    let sessionDescription
+    try {
+      sessionDescription = await rtcPeerConnection.createAnswer()
+      rtcPeerConnection.setLocalDescription(sessionDescription)
+    } catch (error) {
+      console.error(error)
+    }
+  
+    socket.emit('webrtc_answer', {
+      type: 'webrtc_answer',
+      sdp: sessionDescription,
+      roomId,
+    })
+  }
+
+function setRemoteStream(event) {
+    remoteVideoComponent.srcObject = event.streams[0];
+    remoteStream = event.stream;
+}
+  
+function sendIceCandidate(event) {
+    if (event.candidate) {
+        socket.emit('webrtc_ice_candidate', {
+        roomId,
+        label: event.candidate.sdpMLineIndex,
+        candidate: event.candidate.candidate,
+        })
+    }
+}
+
+  
