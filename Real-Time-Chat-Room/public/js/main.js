@@ -141,7 +141,7 @@ function sendadd(){
 // video call
 video.addEventListener('click', async() => {
     //socket.emit('start_call', room);
-    const roomId = 1;
+    roomId = 1;
     socket.emit('joinCall', roomId);
     showVideoConference();
 });
@@ -158,7 +158,7 @@ socket.on('chat-room', async () => {
     acc.style = 'display: block';
     acc.addEventListener('click', async() => {
         //socket.emit('start_call', room);
-        const roomId = 1;
+        roomId = 1;
         socket.emit('acceptCall', roomId);
         showVideoConference();
     });

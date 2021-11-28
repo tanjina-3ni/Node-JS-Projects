@@ -85,7 +85,7 @@ io.on('connection', socket => {
     });
 
     socket.on('start_call', (roomId) => {
-        console.log('start call');
+        console.log(roomId);
         socket.broadcast.to(roomId).emit('start_call');
     });
 
