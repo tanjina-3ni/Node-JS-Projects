@@ -70,38 +70,38 @@ io.on('connection', socket => {
 
     });
 
-    socket.on('joinCall', ({roomId,uid}) => {
+    socket.on('joinCall', ({room,uid}) => {
         const user = getCurrentUser(socket.id);
-        console.log(roomId);
-        socket.join(roomId);
+        console.log(room);
+        socket.join(room);
         socket.to(uid).emit('chat-room');
-        socket.emit('room_created', roomId);
+        socket.emit('room_created', room);
       });
 
-    socket.on('acceptCall', (roomId) => {
-        console.log(`Joining room ${roomId} and emitting room_joined socket event`);
-        socket.join(roomId);
-        socket.emit('room_joined', roomId);
+    socket.on('acceptCall', (room) => {
+        console.log(`Joining room ${room} and emitting room_joined socket event`);
+        socket.join(room);
+        socket.emit('room_joined', room);
     });
 
-    socket.on('start_call', (roomId) => {
-        console.log(roomId);
-        socket.broadcast.to(roomId).emit('start_call');
+    socket.on('start_call', (room) => {
+        console.log(room);
+        socket.broadcast.to(room).emit('start_call');
     });
 
     socket.on('webrtc_offer', (event) => {
-        console.log(`Broadcasting webrtc_offer event to peers in room ${event.roomId}`)
-        socket.broadcast.to(event.roomId).emit('webrtc_offer', event.sdp)
+        console.log(`Broadcasting webrtc_offer event to peers in room ${event.room}`)
+        socket.broadcast.to(event.room).emit('webrtc_offer', event.sdp)
     });
 
     socket.on('webrtc_answer', (event) => {
-        console.log(`Broadcasting webrtc_answer event to peers in room ${event.roomId}`)
-        socket.broadcast.to(event.roomId).emit('webrtc_answer', event.sdp)
+        console.log(`Broadcasting webrtc_answer event to peers in room ${event.room}`)
+        socket.broadcast.to(event.room).emit('webrtc_answer', event.sdp)
     });
 
     socket.on('webrtc_ice_candidate', (event) => {
-        console.log(`Broadcasting webrtc_ice_candidate event to peers in room ${event.roomId}`)
-        socket.broadcast.to(event.roomId).emit('webrtc_ice_candidate', event);
+        console.log(`Broadcasting webrtc_ice_candidate event to peers in room ${event.room}`)
+        socket.broadcast.to(event.room).emit('webrtc_ice_candidate', event);
     });
     
 });

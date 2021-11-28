@@ -26,7 +26,7 @@ let localStream
 let remoteStream
 let isCaller
 let rtcPeerConnection // Connection between the local device and the remote peer.
-let roomId
+//let room
 
 // Free public STUN servers provided by Google.
 const iceServers = {
@@ -141,8 +141,8 @@ function sendadd(){
 // video call
 video.addEventListener('click', async() => {
     //socket.emit('start_call', room);
-    roomId = 1;
-    socket.emit('joinCall', ({roomId,uid}));
+    //room = 1;
+    socket.emit('joinCall', ({room,uid}));
     showVideoConference();
 });
 
@@ -158,8 +158,8 @@ socket.on('chat-room', async () => {
     acc.style = 'display: block';
     acc.addEventListener('click', async() => {
         //socket.emit('start_call', room);
-        roomId = 1;
-        socket.emit('acceptCall', roomId);
+        //room = 1;
+        socket.emit('acceptCall', room);
         showVideoConference();
     });
 });
@@ -167,7 +167,7 @@ socket.on('chat-room', async () => {
 socket.on('room_joined', async () => {
     console.log('Socket event callback: room_joined');
     await setLocalStream(mediaConstraints);
-    socket.emit('start_call', roomId);
+    socket.emit('start_call', room);
     isCaller = 0;
 });
 
@@ -249,7 +249,7 @@ async function createOffer(rtcPeerConnection) {
     socket.emit('webrtc_offer', {
         type: 'webrtc_offer',
         sdp: sessionDescription,
-        roomId,
+        room,
     })
 }
 
@@ -265,7 +265,7 @@ async function createAnswer(rtcPeerConnection) {
     socket.emit('webrtc_answer', {
       type: 'webrtc_answer',
       sdp: sessionDescription,
-      roomId,
+      room,
     })
   }
 
@@ -277,7 +277,7 @@ function setRemoteStream(event) {
 function sendIceCandidate(event) {
     if (event.candidate) {
         socket.emit('webrtc_ice_candidate', {
-        roomId,
+        room,
         label: event.candidate.sdpMLineIndex,
         candidate: event.candidate.candidate,
         })
