@@ -70,11 +70,11 @@ io.on('connection', socket => {
 
     });
 
-    socket.on('joinCall', (roomId) => {
+    socket.on('joinCall', ({roomId,uid}) => {
         const user = getCurrentUser(socket.id);
         console.log(roomId);
         socket.join(roomId);
-        socket.to(user.room).emit('chat-room');
+        socket.to(uid).emit('chat-room');
         socket.emit('room_created', roomId);
       });
 

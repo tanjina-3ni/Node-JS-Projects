@@ -142,7 +142,7 @@ function sendadd(){
 video.addEventListener('click', async() => {
     //socket.emit('start_call', room);
     roomId = 1;
-    socket.emit('joinCall', roomId);
+    socket.emit('joinCall', ({roomId,uid}));
     showVideoConference();
 });
 
