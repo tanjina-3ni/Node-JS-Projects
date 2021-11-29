@@ -8,6 +8,11 @@ This is a realtime chat app. Connected users in a room can communicate. They can
 - Socket.io 
 - Vanilla JS (frontend)
 
+## Features
+- Chat inside rooms
+- Private message 
+- Private video call (Peer to Peer)
+
 ## Installation Process
 
 - npm install
