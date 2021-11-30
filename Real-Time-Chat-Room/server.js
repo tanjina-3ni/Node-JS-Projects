@@ -73,9 +73,15 @@ io.on('connection', socket => {
     socket.on('joinCall', ({room,uid}) => {
         const user = getCurrentUser(socket.id);
         console.log(room);
-        socket.join(room);
-        socket.to(uid).emit('chat-room');
-        socket.emit('room_created', room);
+        if(user.id===uid){
+            socket.emit('myself');
+        }
+        else{
+            //socket.join(room);
+            socket.to(uid).emit('chat-room');
+            socket.emit('room_created', room);
+        }
+        
       });
 
     socket.on('acceptCall', (room) => {

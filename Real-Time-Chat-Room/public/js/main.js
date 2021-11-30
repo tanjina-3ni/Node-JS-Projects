@@ -143,10 +143,14 @@ video.addEventListener('click', async() => {
     //socket.emit('start_call', room);
     //room = 1;
     socket.emit('joinCall', ({room,uid}));
-    showVideoConference();
+});
+
+socket.on('myself', ()=>{
+    alert('You can not call yourself');
 });
 
 socket.on('room_created', async () => {
+    showVideoConference();
     console.log('Socket event callback: room_created')
     //video.style = 'color: green';
     await setLocalStream(mediaConstraints);
