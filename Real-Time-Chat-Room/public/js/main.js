@@ -9,6 +9,7 @@ const videoChatContainer = document.getElementById('video-chat-container');
 const localVideoComponent = document.getElementById('local-video');
 const remoteVideoComponent = document.getElementById('remote-video');
 const acc = document.getElementById('acc');
+const selfname = document.getElementById('selfname');
 
 // Get username and room from URL 
 const { username, room } = Qs.parse(location.search, {
@@ -51,11 +52,12 @@ socket.on('connect',()=>{
 let users = [];
 socket.on('user-id',ID=>{
     userID = ID;
-    console.log(userID);
+    //console.log(userID);
 });
 
 // Get room and users
 socket.on('roomUsers', ({ room, users}) => {
+    selfname.innerText = username;
     users = users.filter(user => user.id!==userID);
     outputRoomName(room);
     outputUsers(users);
