@@ -22,10 +22,10 @@ io.on('connection', socket => {
         socket.join(user.room);
 
         // Welcome current user
-        socket.emit('message', formatMessage(botName, 'Welcome to ChatCord',''));
+        socket.emit('message', formatMessage(botName,'', 'Welcome to ChatCord',''));
 
         // Broadcast when a user connects
-        socket.broadcast.to(user.room).emit('message', formatMessage(botName, `${user.username} has joined the chat`,''));
+        socket.broadcast.to(user.room).emit('message', formatMessage(botName, '', `${user.username} has joined the chat`,''));
         
         io.to(user.id).emit('user-id',socket.id);
 
@@ -42,7 +42,7 @@ io.on('connection', socket => {
     socket.on('chatMessage', msg=> {
         const user = getCurrentUser(socket.id);
         const status = '';
-        io.to(user.room).emit('message', formatMessage(user.username, msg, status));
+        io.to(user.room).emit('message', formatMessage(user.username, user.id, msg, status));
     });
 
     //private message
@@ -50,8 +50,9 @@ io.on('connection', socket => {
         const user = getCurrentUser(socket.id);
         const status = " (Private message)";
         //console.log({msg,sendadd});
-        io.to(sendadd).emit('message', formatMessage(user.username, msg, status));
-        io.to(user.id).emit('message', formatMessage(user.username, msg, status));
+        // pass senders userid to detect the sender
+        io.to(sendadd).emit('message', formatMessage(user.username, user.id, msg, status));
+        io.to(user.id).emit('message', formatMessage(user.username, user.id, msg, status));
     });
 
     // Runs when a client disconnects
@@ -59,7 +60,7 @@ io.on('connection', socket => {
         const user = userLeave(socket.id);
 
         if (user) {
-            io.to(user.room).emit('message', formatMessage(botName, `${user.username} has left the chat`,''));
+            io.to(user.room).emit('message', formatMessage(botName,'', `${user.username} has left the chat`,''));
         }
 
         // Send users and room info

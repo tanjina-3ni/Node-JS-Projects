@@ -99,7 +99,7 @@ chatForm.addEventListener('submit', e => {
 function outputMessage(message) {
     const div = document.createElement('div');
     div.classList.add('message');
-    if(username===message.username){
+    if(userID===message.userid){
         div.innerHTML = `<div id="send-message">
             <p class="meta">${message.username} <span>${message.time}</span><span>${message.status}</span></p>
             <p class="text">
