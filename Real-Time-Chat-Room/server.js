@@ -27,7 +27,7 @@ io.on('connection', socket => {
         // Broadcast when a user connects
         socket.broadcast.to(user.room).emit('message', formatMessage(botName, `${user.username} has joined the chat`,''));
         
-        io.to(user.room).emit('user-id',socket.id);
+        io.to(user.id).emit('user-id',socket.id);
 
         // Send users and room info
         io.to(user.room).emit('roomUsers', {
@@ -72,12 +72,15 @@ io.on('connection', socket => {
 
     socket.on('joinCall', ({room,uid}) => {
         const user = getCurrentUser(socket.id);
-        console.log(room);
+        //console.log(room);
         if(user.id===uid){
             socket.emit('myself');
         }
         else{
             //socket.join(room);
+            if(uid==''){
+                uid = room;
+            }
             socket.to(uid).emit('chat-room');
             socket.emit('room_created', room);
         }
@@ -112,6 +115,6 @@ io.on('connection', socket => {
     
 });
 
-const PORT = 3000 || process.env.PORT;
+const PORT = 8000 || process.env.PORT;
 
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));

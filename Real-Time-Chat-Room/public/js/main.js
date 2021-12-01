@@ -15,7 +15,7 @@ const { username, room } = Qs.parse(location.search, {
     ignoreQueryPrefix: true
 });
 
-const socket = io();
+const socket = io.connect();
 
 // video
 const mediaConstraints = {
@@ -39,18 +39,24 @@ const iceServers = {
     ],
 }
 
-// Join chatroom
-socket.emit('joinroom', { username, room });
-
 let userID;
+// Join chatroom
+socket.on('connect',()=>{
+    socket.emit('joinroom', { username, room });
+    //userID = socket.io.engine.id;
+})
 
+
+// 
+let users = [];
 socket.on('user-id',ID=>{
     userID = ID;
-    //console.log(userID);
+    console.log(userID);
 });
 
 // Get room and users
 socket.on('roomUsers', ({ room, users}) => {
+    users = users.filter(user => user.id!==userID);
     outputRoomName(room);
     outputUsers(users);
 });
@@ -118,6 +124,15 @@ function outputRoomName(room) {
 
 // Add users to DOM
 function outputUsers(users) {
+    // for(i=0;i<users.length;i++){
+    //     console.log(users[i].id);
+    //     console.log(userID);
+    //     if(users[i].id!=userID){
+    //         console.log(users[i].username);
+    //     }
+    // }
+    //console.log(users);
+    
     userList.innerHTML = `
     ${users.map(user => `<li>${user.username}</li>`).join('')}
   `;
@@ -215,7 +230,7 @@ socket.on('webrtc_ice_candidate', (event) => {
         candidate: event.candidate,
     })
     rtcPeerConnection.addIceCandidate(candidate);
-})
+});
   
 // video call functions
 function showVideoConference() {
@@ -254,7 +269,7 @@ async function createOffer(rtcPeerConnection) {
         type: 'webrtc_offer',
         sdp: sessionDescription,
         room,
-    })
+    });
 }
 
 async function createAnswer(rtcPeerConnection) {
@@ -270,7 +285,7 @@ async function createAnswer(rtcPeerConnection) {
       type: 'webrtc_answer',
       sdp: sessionDescription,
       room,
-    })
+    });
   }
 
 function setRemoteStream(event) {
