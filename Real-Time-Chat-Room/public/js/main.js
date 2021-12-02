@@ -1,3 +1,5 @@
+//import h from './helpers.js';
+
 const chatContainer = document.getElementById('chat-container');
 const chatForm = document.getElementById('chat-form');
 const chatMessages = document.querySelector('.chat-messages');
@@ -5,12 +7,10 @@ const roomName = document.getElementById('room-name');
 const userList = document.getElementById('users');
 const select = document.getElementById('dropdown');
 const video = document.getElementById('video');
-const videoChatContainer = document.getElementById('video-chat-container');
-const localVideoComponent = document.getElementById('local-video');
-const remoteVideoComponent = document.getElementById('remote-video');
 const acc = document.getElementById('acc');
 const reject = document.getElementById('reject');
 const selfname = document.getElementById('selfname');
+
 
 // Get username and room from URL 
 const { username, room } = Qs.parse(location.search, {
@@ -20,14 +20,18 @@ const { username, room } = Qs.parse(location.search, {
 const socket = io.connect();
 
 // video
-const mediaConstraints = {
-    audio: true,
-    video: { width: 1280, height: 720 },
-}
+// const mediaConstraints = {
+//     audio: true,
+//     video: { width: 1280, height: 720 },
+// }
 let localStream
 let remoteStream
 let isCaller
-let rtcPeerConnection // Connection between the local device and the remote peer.
+let rtcPeerConnection
+var myStream = '';
+var screen = '';
+var recordedStream = [];
+var mediaRecorder = ''; // Connection between the local device and the remote peer.
 //let room
 
 // Free public STUN servers provided by Google.
@@ -51,6 +55,7 @@ socket.on('connect',()=>{
 
 // 
 let users = [];
+let member;
 socket.on('user-id',ID=>{
     userID = ID;
     //console.log(userID);
@@ -60,13 +65,14 @@ socket.on('user-id',ID=>{
 socket.on('roomUsers', ({ room, users}) => {
     selfname.innerText = username;
     users = users.filter(user => user.id!==userID);
+    member = users.length;
     outputRoomName(room);
     outputUsers(users);
 });
 
 // Message from server
 socket.on('message', message => {
-    console.log(message);
+    //console.log(message);
     outputMessage(message);
 
     // Scroll down
@@ -157,154 +163,332 @@ function sendadd(){
 }
 
 // video call
+
+var pc = [];
+var myStream = '';
+
 video.addEventListener('click', async() => {
     //socket.emit('start_call', room);
     //room = 1;
-    socket.emit('joinCall', ({room,sendto}));
-});
-
-socket.on('myself', ()=>{
-    alert('You can not call yourself');
+    //console.log(member);
+    if(member>0){
+        socket.emit('joinCall', ({room,sendto}));
+    }
+    else{
+        alert('No one is available');
+    }
 });
 
 socket.on('room_created', async () => {
-    showVideoConference();
+    getAndSetUserStream();
     console.log('Socket event callback: room_created');
     //video.style = 'color: green';
-    await setLocalStream(mediaConstraints);
-    isCaller = 1;
+    //await setLocalStream(mediaConstraints);
+    //isCaller = 1;
 });
 
-socket.on('videocall-room', async () => {
+socket.on('videocall-room',() => {
     //console.log(' room_created');
     acc.style = 'display: block; padding:5px; font-size: 18px; background-color: green; color: white';
     reject.style = 'display: block; padding:5px; font-size: 18px; background-color: red; color: white';
     acc.addEventListener('click', async() => {
         //socket.emit('start_call', room);
         //room = 1;
-        socket.emit('acceptCall', room);
-        showVideoConference();
+        console.log(userID)
+        socket.emit('acceptCall', ({
+            room, 
+            receiver: userID
+        }));
+        getAndSetUserStream();
     });
 });
   
-socket.on('room_joined', async () => {
+socket.on('room_joined', (data) => {
     console.log('Socket event callback: room_joined');
-    await setLocalStream(mediaConstraints);
-    socket.emit('start_call', room);
-    isCaller = 0;
+    socket.emit('newuserstart', ({
+        to: data.receiver,
+        sender: userID
+    }));
+    pc.push( data.receiver );
+    //console.log(pc);
+    init( true, data.receiver );
+    //isCaller = 0;
 });
 
-socket.on('start_call', async () => {
-    console.log('Socket event callback: start_call');
-  
-    if (isCaller==1) {
-      rtcPeerConnection = new RTCPeerConnection(iceServers);
-      addLocalTracks(rtcPeerConnection);
-      rtcPeerConnection.ontrack = setRemoteStream;
-      rtcPeerConnection.onicecandidate = sendIceCandidate;
-      await createOffer(rtcPeerConnection);
+socket.on( 'newUserStart', ( data ) => {
+    console.log('newUserStart') //see new user
+    pc.push( data.sender );
+    init( false, data.sender );
+});
+
+socket.on( 'ice candidates', async ( data ) => {
+    data.candidate ? await pc[data.sender].addIceCandidate( new RTCIceCandidate( data.candidate ) ) : '';
+} );
+
+socket.on( 'sdp', async ( data ) => {
+    if ( data.description.type === 'offer' ) {
+        data.description ? await pc[data.sender].setRemoteDescription( new RTCSessionDescription( data.description ) ) : '';
+        
+        getUserFullMedia().then( async ( stream ) => {
+            if ( !document.getElementById( 'local' ).srcObject ) {
+                setLocalStream( stream );
+            }
+
+            //save my stream
+            myStream = stream;
+
+            stream.getTracks().forEach( ( track ) => {
+                pc[data.sender].addTrack( track, stream );
+            } );
+
+            let answer = await pc[data.sender].createAnswer();
+
+            await pc[data.sender].setLocalDescription( answer );
+
+            socket.emit( 'sdp', { description: pc[data.sender].localDescription, to: data.sender, sender: userID } );
+        } ).catch( ( e ) => {
+            console.error( e );
+        } );
     }
-});
 
-socket.on('webrtc_offer', async (event) => {
-    console.log('Socket event callback: webrtc_offer')
-  
-    if (isCaller==0) {
-      rtcPeerConnection = new RTCPeerConnection(iceServers)
-      addLocalTracks(rtcPeerConnection)
-      rtcPeerConnection.ontrack = setRemoteStream
-      rtcPeerConnection.onicecandidate = sendIceCandidate
-      rtcPeerConnection.setRemoteDescription(new RTCSessionDescription(event))
-      await createAnswer(rtcPeerConnection)
+    else if ( data.description.type === 'answer' ) {
+        await pc[data.sender].setRemoteDescription( new RTCSessionDescription( data.description ) );
     }
-});
+} );
 
-socket.on('webrtc_answer', (event) => {
-    console.log('Socket event callback: webrtc_answer')
-  
-    rtcPeerConnection.setRemoteDescription(new RTCSessionDescription(event));
-});
-  
-socket.on('webrtc_ice_candidate', (event) => {
-    console.log('Socket event callback: webrtc_ice_candidate')
+function init( createOffer, partnerName ) {
+    pc[partnerName] = new RTCPeerConnection( getIceServer() );
 
-    // ICE candidate configuration.
-    var candidate = new RTCIceCandidate({
-        sdpMLineIndex: event.label,
-        candidate: event.candidate,
-    })
-    rtcPeerConnection.addIceCandidate(candidate);
-});
-  
+    if ( screen && screen.getTracks().length ) {
+        screen.getTracks().forEach( ( track ) => {
+            pc[partnerName].addTrack( track, screen );//should trigger negotiationneeded event
+        } );
+    }
+
+    else if ( myStream ) {
+        myStream.getTracks().forEach( ( track ) => {
+            pc[partnerName].addTrack( track, myStream );//should trigger negotiationneeded event
+        } );
+    }
+
+    else {
+        getUserFullMedia().then( ( stream ) => {
+            //save my stream
+            myStream = stream;
+
+            stream.getTracks().forEach( ( track ) => {
+                pc[partnerName].addTrack( track, stream );//should trigger negotiationneeded event
+            } );
+
+            setLocalStream( stream );
+        } ).catch( ( e ) => {
+            console.error( `stream error: ${ e }` );
+        } );
+    }
+
+
+
+    //create offer
+    if ( createOffer ) {
+        console.log(pc);
+        pc[partnerName].onnegotiationneeded = async () => {
+            let offer = await pc[partnerName].createOffer();
+
+            await pc[partnerName].setLocalDescription( offer );
+
+            socket.emit( 'sdp', { description: pc[partnerName].localDescription, to: partnerName, sender: userID } );
+        };
+        console.log('=====');
+        //console.log(pc[partnerName]);
+    }
+
+
+
+    //send ice candidate to partnerNames
+    pc[partnerName].onicecandidate = ( { candidate } ) => {
+        socket.emit( 'ice candidates', { candidate: candidate, to: partnerName, sender: userID } );
+    };
+
+
+
+    //add
+    pc[partnerName].ontrack = ( e ) => {
+        let str = e.streams[0];
+        if ( document.getElementById( `${ partnerName }-video` ) ) {
+            document.getElementById( `${ partnerName }-video` ).srcObject = str;
+        }
+
+        else {
+            //video elem
+            let newVid = document.createElement( 'video' );
+            newVid.id = `${ partnerName }-video`;
+            newVid.srcObject = str;
+            newVid.autoplay = true;
+            newVid.className = 'remote-video';
+
+            //video controls elements
+            let controlDiv = document.createElement( 'div' );
+            controlDiv.className = 'remote-video-controls';
+            controlDiv.innerHTML = `<i class="fa fa-microphone text-white pr-3 mute-remote-mic" title="Mute"></i>
+                <i class="fa fa-expand text-white expand-remote-video" title="Expand"></i>`;
+
+            //create a new div for card
+            let cardDiv = document.createElement( 'div' );
+            cardDiv.className = 'card card-sm';
+            cardDiv.id = partnerName;
+            cardDiv.appendChild( newVid );
+            cardDiv.appendChild( controlDiv );
+
+            //put div in main-section elem
+            document.getElementById( 'videos' ).appendChild( cardDiv );
+
+            adjustVideoElemSize();
+        }
+    };
+
+
+
+    pc[partnerName].onconnectionstatechange = ( d ) => {
+        switch ( pc[partnerName].iceConnectionState ) {
+            case 'disconnected':
+            case 'failed':
+                closeVideo( partnerName );
+                break;
+
+            case 'closed':
+                closeVideo( partnerName );
+                break;
+        }
+    };
+
+
+
+    pc[partnerName].onsignalingstatechange = ( d ) => {
+        switch ( pc[partnerName].signalingState ) {
+            case 'closed':
+                console.log( "Signalling state is 'closed'" );
+                closeVideo( partnerName );
+                break;
+        }
+    };
+}
+
 // video call functions
-function showVideoConference() {
+function getAndSetUserStream() {
     chatContainer.style = 'display: none';
-    videoChatContainer.style = 'display: block';
-}
-
-async function setLocalStream(mediaConstraints) {
-    let stream
-    try {
-      stream = await navigator.mediaDevices.getUserMedia(mediaConstraints)
-    } catch (error) {
-      console.error('Could not get user media', error)
-    }
-  
-    localStream = stream
-    localVideoComponent.srcObject = stream
-}
-
-function addLocalTracks(rtcPeerConnection) {
-    localStream.getTracks().forEach((track) => {
-      rtcPeerConnection.addTrack(track, localStream);
-    });
-}
-  
-async function createOffer(rtcPeerConnection) {
-    let sessionDescription
-    try {
-        sessionDescription = await rtcPeerConnection.createOffer();
-        rtcPeerConnection.setLocalDescription(sessionDescription);
-    } catch (error) {
-        console.error(error);
+    let commElem = document.getElementsByClassName( 'room-comm' );
+    for ( let i = 0; i < commElem.length; i++ ) {
+        commElem[i].attributes.removeNamedItem( 'hidden' );
     }
 
-    socket.emit('webrtc_offer', {
-        type: 'webrtc_offer',
-        sdp: sessionDescription,
-        room,
-    });
+    getUserFullMedia().then( ( stream ) => {
+        //save my stream
+        myStream = stream;
+        setLocalStream( stream );
+    } ).catch( ( e ) => {
+        console.error( `stream error: ${ e }` );
+    } );
 }
 
-async function createAnswer(rtcPeerConnection) {
-    let sessionDescription
-    try {
-      sessionDescription = await rtcPeerConnection.createAnswer()
-      rtcPeerConnection.setLocalDescription(sessionDescription)
-    } catch (error) {
-      console.error(error)
-    }
-  
-    socket.emit('webrtc_answer', {
-      type: 'webrtc_answer',
-      sdp: sessionDescription,
-      room,
-    });
-  }
-
-function setRemoteStream(event) {
-    remoteVideoComponent.srcObject = event.streams[0];
-    remoteStream = event.stream;
+function getIceServer() {
+    return {
+        iceServers: [
+            {
+                urls: ["stun:eu-turn4.xirsys.com"]
+            },
+            {
+                username: "ml0jh0qMKZKd9P_9C0UIBY2G0nSQMCFBUXGlk6IXDJf8G2uiCymg9WwbEJTMwVeiAAAAAF2__hNSaW5vbGVl",
+                credential: "4dd454a6-feee-11e9-b185-6adcafebbb45",
+                urls: [
+                    "turn:eu-turn4.xirsys.com:80?transport=udp",
+                    "turn:eu-turn4.xirsys.com:3478?transport=tcp"
+                ]
+            }
+        ]
+    };
 }
-  
-function sendIceCandidate(event) {
-    if (event.candidate) {
-        socket.emit('webrtc_ice_candidate', {
-        room,
-        label: event.candidate.sdpMLineIndex,
-        candidate: event.candidate.candidate,
-        })
+
+function setLocalStream( stream, mirrorMode = true ) {
+    const localVidElem = document.getElementById( 'local' );
+    localVidElem.srcObject = stream;
+    mirrorMode ? localVidElem.classList.add( 'mirror-mode' ) : localVidElem.classList.remove( 'mirror-mode' );
+}
+
+function getQString( url = '', keyToReturn = '' ) {
+    url = url ? url : location.href;
+    let queryStrings = decodeURIComponent( url ).split( '#', 2 )[0].split( '?', 2 )[1];
+
+    if ( queryStrings ) {
+        let splittedQStrings = queryStrings.split( '&' );
+
+        if ( splittedQStrings.length ) {
+            let queryStringObj = {};
+
+            splittedQStrings.forEach( function ( keyValuePair ) {
+                let keyValue = keyValuePair.split( '=', 2 );
+
+                if ( keyValue.length ) {
+                    queryStringObj[keyValue[0]] = keyValue[1];
+                }
+            } );
+
+            return keyToReturn ? ( queryStringObj[keyToReturn] ? queryStringObj[keyToReturn] : null ) : queryStringObj;
+        }
+
+        return null;
     }
+
+    return null;
+}
+
+function adjustVideoElemSize() {
+    let elem = document.getElementsByClassName( 'card' );
+    let totalRemoteVideosDesktop = elem.length;
+    let newWidth = totalRemoteVideosDesktop <= 2 ? '50%' : (
+        totalRemoteVideosDesktop == 3 ? '33.33%' : (
+            totalRemoteVideosDesktop <= 8 ? '25%' : (
+                totalRemoteVideosDesktop <= 15 ? '20%' : (
+                    totalRemoteVideosDesktop <= 18 ? '16%' : (
+                        totalRemoteVideosDesktop <= 23 ? '15%' : (
+                            totalRemoteVideosDesktop <= 32 ? '12%' : '10%'
+                        )
+                    )
+                )
+            )
+        )
+    );
+
+
+    for ( let i = 0; i < totalRemoteVideosDesktop; i++ ) {
+        elem[i].style.width = newWidth;
+    }
+}
+
+function getUserFullMedia() {
+    if ( this.userMediaAvailable() ) {
+        return navigator.mediaDevices.getUserMedia( {
+            video: true,
+            audio: {
+                echoCancellation: true,
+                noiseSuppression: true
+            }
+        } );
+    }
+
+    else {
+        throw new Error( 'User media not available' );
+    }
+}
+
+function closeVideo( elemId ) {
+    if ( document.getElementById( elemId ) ) {
+        document.getElementById( elemId ).remove();
+        this.adjustVideoElemSize();
+    }
+}
+
+function userMediaAvailable() {
+    return !!( navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia );
 }
 
   

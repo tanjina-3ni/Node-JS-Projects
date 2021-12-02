@@ -28,17 +28,10 @@ function getRoomUsers(room) {
     return usersofRoom;
 }
 
-// Get number of users in room
-function getRoomUsersNumber(room) {
-    const usersofRoom = users.filter(user => user.room === room);
-    const number = usersofRoom.length;
-    return number;
-}
 
 module.exports = {
     userJoin,
     getCurrentUser,
     userLeave,
     getRoomUsers,
-    getRoomUsersNumber
 }

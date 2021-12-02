@@ -3,7 +3,7 @@ const http = require('http');
 const express = require('express');
 const socketio = require('socket.io');
 const formatMessage = require('./utils/messages');
-const { userJoin, getCurrentUser, userLeave, getRoomUsers, getRoomUsersNumber } = require('./utils/users');
+const { userJoin, getCurrentUser, userLeave, getRoomUsers } = require('./utils/users');
 
 const app = express();
 const server = http.createServer(app);
@@ -73,47 +73,37 @@ io.on('connection', socket => {
 
     socket.on('joinCall', ({room,sendto}) => {
         const user = getCurrentUser(socket.id);
-        //console.log(room);
-        if(user.id===sendto){
-            socket.emit('myself');
+        //socket.join(room);
+        if(sendto==''){
+            sendto = room;
+            io.to(user.room).emit('message', formatMessage(botName,'', `${user.username} has started video call`,''));
         }
-        else{
-            //socket.join(room);
-            if(sendto==''){
-                sendto = room;
-                io.to(user.room).emit('message', formatMessage(botName,'', `${user.username} has started video call`,''));
-            }
-            socket.to(sendto).emit('videocall-room');
-            socket.emit('room_created', room);
-        }
-        
+        socket.emit('room_created');
+        socket.to(sendto).emit('videocall-room');
       });
 
-    socket.on('acceptCall', (room) => {
-        console.log(`Joining room ${room} and emitting room_joined socket event`);
-        socket.join(room);
-        socket.emit('room_joined', room);
+    socket.on('acceptCall', (data) => {
+        console.log(`Joining room ${data.room} and emitting room_joined socket event`);
+        socket.join(data.room);
+        socket.to(data.room).emit('room_joined', data);
     });
 
-    socket.on('start_call', (room) => {
-        console.log(room);
-        socket.broadcast.to(room).emit('start_call');
+    socket.on('newuserstart', (data) => {
+        console.log(data)
+        //console.log(room);
+        socket.to( data.to ).emit( 'newUserStart', { sender: data.sender } );
     });
 
-    socket.on('webrtc_offer', (event) => {
-        console.log(`Broadcasting webrtc_offer event to peers in room ${event.room}`)
-        socket.broadcast.to(event.room).emit('webrtc_offer', event.sdp)
-    });
+    socket.on( 'sdp', ( data ) => {
+        console.log('sdp')
+        socket.to( data.to ).emit( 'sdp', { description: data.description, sender: data.sender } );
+    } );
 
-    socket.on('webrtc_answer', (event) => {
-        console.log(`Broadcasting webrtc_answer event to peers in room ${event.room}`)
-        socket.broadcast.to(event.room).emit('webrtc_answer', event.sdp)
-    });
 
-    socket.on('webrtc_ice_candidate', (event) => {
-        console.log(`Broadcasting webrtc_ice_candidate event to peers in room ${event.room}`)
-        socket.broadcast.to(event.room).emit('webrtc_ice_candidate', event);
-    });
+    socket.on( 'ice candidates', ( data ) => {
+        console.log('ice candidates')
+        socket.to( data.to ).emit( 'ice candidates', { candidate: data.candidate, sender: data.sender } );
+    } );
     
 });
 
