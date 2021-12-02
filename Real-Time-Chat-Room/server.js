@@ -71,21 +71,21 @@ io.on('connection', socket => {
 
     });
 
-    socket.on('joinCall', ({room,sendto}) => {
+    socket.on('joinCall', ({conferenceroom,sendto}) => {
         const user = getCurrentUser(socket.id);
-        //socket.join(room);
+        socket.join(conferenceroom);
         if(sendto==''){
-            sendto = room;
+            sendto = user.room;
             io.to(user.room).emit('message', formatMessage(botName,'', `${user.username} has started video call`,''));
         }
         socket.emit('room_created');
-        socket.to(sendto).emit('videocall-room');
+        socket.to(sendto).emit('videocall-room',conferenceroom);
       });
 
     socket.on('acceptCall', (data) => {
-        console.log(`Joining room ${data.room} and emitting room_joined socket event`);
-        socket.join(data.room);
-        socket.to(data.room).emit('room_joined', data);
+        console.log(`Joining room ${data.conferenceroom} and emitting room_joined socket event`);
+        socket.join(data.conferenceroom);
+        socket.to(data.conferenceroom).emit('room_joined', data);
     });
 
     socket.on('newuserstart', (data) => {
@@ -95,13 +95,13 @@ io.on('connection', socket => {
     });
 
     socket.on( 'sdp', ( data ) => {
-        console.log('sdp')
+        //console.log('sdp')
         socket.to( data.to ).emit( 'sdp', { description: data.description, sender: data.sender } );
     } );
 
 
     socket.on( 'ice candidates', ( data ) => {
-        console.log('ice candidates')
+        //console.log('ice candidates')
         socket.to( data.to ).emit( 'ice candidates', { candidate: data.candidate, sender: data.sender } );
     } );
     

@@ -166,13 +166,14 @@ function sendadd(){
 
 var pc = [];
 var myStream = '';
-
+var conferenceroom;
 video.addEventListener('click', async() => {
     //socket.emit('start_call', room);
-    //room = 1;
+    conferenceroom = 1;
     //console.log(member);
     if(member>0){
-        socket.emit('joinCall', ({room,sendto}));
+        socket.emit('joinCall', ({conferenceroom,
+            sendto}));
     }
     else{
         alert('No one is available');
@@ -187,16 +188,16 @@ socket.on('room_created', async () => {
     //isCaller = 1;
 });
 
-socket.on('videocall-room',() => {
+socket.on('videocall-room',(conferenceroom) => {
     //console.log(' room_created');
     acc.style = 'display: block; padding:5px; font-size: 18px; background-color: green; color: white';
     reject.style = 'display: block; padding:5px; font-size: 18px; background-color: red; color: white';
     acc.addEventListener('click', async() => {
         //socket.emit('start_call', room);
-        //room = 1;
-        console.log(userID)
+        conferenceroom = 1;
+        //console.log(userID)
         socket.emit('acceptCall', ({
-            room, 
+            conferenceroom, 
             receiver: userID
         }));
         getAndSetUserStream();
@@ -377,6 +378,7 @@ function init( createOffer, partnerName ) {
 function getAndSetUserStream() {
     chatContainer.style = 'display: none';
     let commElem = document.getElementsByClassName( 'room-comm' );
+    //console.log(commElem.length);
     for ( let i = 0; i < commElem.length; i++ ) {
         commElem[i].attributes.removeNamedItem( 'hidden' );
     }
