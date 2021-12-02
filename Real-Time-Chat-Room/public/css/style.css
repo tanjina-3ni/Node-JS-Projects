@@ -207,18 +207,48 @@ a {
 	background-color: black;
 }
 
-#local-video {
-	position: absolute;
-	height: 30%;
-	width: 30%;
-	bottom: 0px;
-	left: 0px;
+
+
+.remote-video{
+    width:100%;
+    height:auto;
+    max-height: 90vh;
 }
 
-#remote-video {
-	height: 100%;
-	width: 100%;
+
+.remote-video-controls{
+    position:absolute;
+    bottom: 0;
+    background-color:rgba(0, 0, 0, 0.5);
+    z-index:300000;
+    padding: 10px;
+    width: 100%;
+    text-align: center;
+    visibility: hidden;
 }
+
+
+.remote-video:hover + .remote-video-controls,
+.remote-video-controls:hover{
+    visibility: visible;
+}
+
+
+.local-video{
+    bottom: 0;
+    left: 0;
+    position: fixed;
+    width:15vw;
+}
+
+
+.mirror-mode{
+    -ms-transform: scaleX(-1);
+    -moz-transform: scaleX(-1);
+    -webkit-transform: scaleX(-1);
+    transform: scaleX(-1);
+}
+
 
 
 @media (max-width: 700px) {
