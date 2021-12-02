@@ -9,6 +9,7 @@ const videoChatContainer = document.getElementById('video-chat-container');
 const localVideoComponent = document.getElementById('local-video');
 const remoteVideoComponent = document.getElementById('remote-video');
 const acc = document.getElementById('acc');
+const reject = document.getElementById('reject');
 const selfname = document.getElementById('selfname');
 
 // Get username and room from URL 
@@ -78,7 +79,7 @@ chatForm.addEventListener('submit', e => {
     // Get message
     const msg = e.target.elements.msg.value;
     //const select = e.target.elements.select;
-    const sendadd = uid;
+    const sendadd = sendto;
     //console.log(sendadd);
     // Emit message to server
     if (sendadd == ""){
@@ -150,16 +151,16 @@ function outputUsers(users) {
 }
 
 // onclick="createRoom('${user.id}');"
-let uid = "";
+let sendto = "";
 function sendadd(){
-    uid = select.value; 
+    sendto = select.value; 
 }
 
 // video call
 video.addEventListener('click', async() => {
     //socket.emit('start_call', room);
     //room = 1;
-    socket.emit('joinCall', ({room,uid}));
+    socket.emit('joinCall', ({room,sendto}));
 });
 
 socket.on('myself', ()=>{
@@ -168,15 +169,16 @@ socket.on('myself', ()=>{
 
 socket.on('room_created', async () => {
     showVideoConference();
-    console.log('Socket event callback: room_created')
+    console.log('Socket event callback: room_created');
     //video.style = 'color: green';
     await setLocalStream(mediaConstraints);
     isCaller = 1;
 });
 
-socket.on('chat-room', async () => {
-    //console.log(' room_created')
-    acc.style = 'display: block';
+socket.on('videocall-room', async () => {
+    //console.log(' room_created');
+    acc.style = 'display: block; padding:5px; font-size: 18px; background-color: green; color: white';
+    reject.style = 'display: block; padding:5px; font-size: 18px; background-color: red; color: white';
     acc.addEventListener('click', async() => {
         //socket.emit('start_call', room);
         //room = 1;

@@ -71,18 +71,19 @@ io.on('connection', socket => {
 
     });
 
-    socket.on('joinCall', ({room,uid}) => {
+    socket.on('joinCall', ({room,sendto}) => {
         const user = getCurrentUser(socket.id);
         //console.log(room);
-        if(user.id===uid){
+        if(user.id===sendto){
             socket.emit('myself');
         }
         else{
             //socket.join(room);
-            if(uid==''){
-                uid = room;
+            if(sendto==''){
+                sendto = room;
+                io.to(user.room).emit('message', formatMessage(botName,'', `${user.username} has started video call`,''));
             }
-            socket.to(uid).emit('chat-room');
+            socket.to(sendto).emit('videocall-room');
             socket.emit('room_created', room);
         }
         
