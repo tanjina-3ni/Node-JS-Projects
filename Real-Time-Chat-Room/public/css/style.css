@@ -98,7 +98,7 @@ a {
 
 .chat-messages {
 	padding: 30px;
-	height: 450px;
+	height: 500px;
 	overflow-y: scroll;
 }
 
@@ -248,13 +248,6 @@ a {
     height: 10vw;
 }
 
-
-.mirror-mode{
-    -ms-transform: scaleX(-1);
-    -moz-transform: scaleX(-1);
-    -webkit-transform: scaleX(-1);
-    transform: scaleX(-1);
-}
 
 .room-comm {
 	padding: 2px;

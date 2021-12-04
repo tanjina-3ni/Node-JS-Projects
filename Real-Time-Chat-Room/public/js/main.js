@@ -409,7 +409,6 @@ function getIceServer() {
 function setLocalStream( stream, mirrorMode = true ) {
     const localVidElem = document.getElementById( 'local' );
     localVidElem.srcObject = stream;
-    mirrorMode ? localVidElem.classList.add( 'mirror-mode' ) : localVidElem.classList.remove( 'mirror-mode' );
 }
 
 function adjustVideoElemSize() {
