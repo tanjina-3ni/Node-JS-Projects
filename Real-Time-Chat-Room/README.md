@@ -1,6 +1,6 @@
 # Chat Room
 
-This is a realtime chat app. Connected users in a room can communicate. They can send private message to a specific user as well.
+This is a realtime chat app. Connected users in a room can communicate. They can send private message to a specific user as well. The users can make video call in group or person to person.
 
 ## Tools
 - Node.js 
