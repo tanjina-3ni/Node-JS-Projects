@@ -7,11 +7,12 @@ This is a realtime chat app. Connected users in a room can communicate. They can
 - Express 
 - Socket.io 
 - Vanilla JS (frontend)
+- WEBRTC (for video call)
 
 ## Features
 - Chat inside rooms
 - Private message 
-- Private video call (Peer to Peer)
+- Private video call ( both in group and Peer to Peer)
 
 ## Installation Process
 
@@ -24,3 +25,4 @@ This is a realtime chat app. Connected users in a room can communicate. They can
 - nodemon server.js <br>
 OR <br>
 - npm run dev <br>
+
