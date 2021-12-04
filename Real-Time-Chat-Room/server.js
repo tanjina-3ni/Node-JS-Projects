@@ -89,13 +89,13 @@ io.on('connection', socket => {
       });
 
     socket.on('acceptCall', (data) => {
-        console.log(`Joining room ${data.conferenceroom} and emitting room_joined socket event`);
+        //console.log(`Joining room ${data.conferenceroom} and emitting room_joined socket event`);
         socket.join(data.conferenceroom);
         socket.to(data.conferenceroom).emit('room_joined', data);
     });
 
     socket.on('newuserstart', (data) => {
-        console.log(data)
+        //console.log(data)
         //console.log(room);
         socket.to( data.to ).emit( 'newUserStart', { sender: data.sender } );
     });
