@@ -30,7 +30,7 @@ io.on('connection', socket => {
         if(getRoomUsers(user.room).length==2){
             host = getRoomUsers(user.room)[0].id;
             console.log('on connect '+host);
-            socket.to(host).emit('setVideocallOption');
+            socket.to(host).emit('setVideocallOption', 1);
         }
 
         io.to(user.id).emit('user-id',socket.id);
@@ -67,10 +67,13 @@ io.on('connection', socket => {
         if(user.id === host && getRoomUsers(user.room).length>1){
             host = getRoomUsers(user.room)[0].id;
             //console.log(host);
-            socket.to(host).emit('setVideocallOption');
+            socket.to(host).emit('setVideocallOption', 1);
         }
 
         if (user) {
+            if(getRoomUsers(user.room).length==1){
+                socket.to(host).emit('setVideocallOption', 0);
+            }
             io.to(user.room).emit('message', formatMessage(botName,'', `${user.username} has left the chat`,''));
         }
         // Send users and room info
@@ -80,8 +83,6 @@ io.on('connection', socket => {
         });
         
         //console.log(host);
-        
-
     });
 
     // video call starts here

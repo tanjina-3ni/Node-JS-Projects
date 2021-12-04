@@ -107,8 +107,14 @@ var pc = [];
 var myStream = '';
 var conferenceroom;
 
-socket.on('setVideocallOption', ()=>{
-    video.style = 'display:block';
+socket.on('setVideocallOption', (flag)=>{
+    if(flag==1){
+        video.style = 'display:block';
+    }
+    else{
+        video.style = 'display:none';
+    }
+    
 });
 
 video.addEventListener('click', async() => {
