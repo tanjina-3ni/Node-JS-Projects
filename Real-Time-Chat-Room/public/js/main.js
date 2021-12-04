@@ -24,9 +24,7 @@ const socket = io.connect();
 //     audio: true,
 //     video: { width: 1280, height: 720 },
 // }
-let localStream
-let remoteStream
-let isCaller
+
 let rtcPeerConnection
 var myStream = '';
 var screen = '';
@@ -138,6 +136,8 @@ socket.on('videocall-room',(conferenceroom) => {
     acc.style = 'display: block; padding:5px; font-size: 18px; background-color: green; color: white';
     reject.style = 'display: block; padding:5px; font-size: 18px; background-color: red; color: white';
     acc.addEventListener('click', async() => {
+        acc.style = 'display:none;';
+        reject.style = 'display:none;';
         //socket.emit('start_call', room);
         conferenceroom = 1;
         //console.log(userID)
@@ -326,13 +326,13 @@ function init( createOffer, partnerName ) {
             newVid.id = `${ partnerName }-video`;
             newVid.srcObject = str;
             newVid.autoplay = true;
-            newVid.className = 'remote-video';
+            newVid.className = 'local-video';
 
             //video controls elements
             let controlDiv = document.createElement( 'div' );
             controlDiv.className = 'remote-video-controls';
-            controlDiv.innerHTML = `<i class="fa fa-microphone text-white pr-3 mute-remote-mic" title="Mute"></i>
-                <i class="fa fa-expand text-white expand-remote-video" title="Expand"></i>`;
+            controlDiv.innerHTML = `<i id="mic" style="color: white;" class="fa fa-microphone text-white pr-3 mute-remote-mic" title="Mute"></i>
+                <i id="expand" style="color: white;" class="fa fa-expand text-white expand-remote-video" title="Expand"></i>`;
 
             //create a new div for card
             let cardDiv = document.createElement( 'div' );
@@ -372,7 +372,7 @@ function init( createOffer, partnerName ) {
 }
 
 function getAndSetUserStream() {
-    chatContainer.style = 'display: none';
+    //chatContainer.style = 'display: none';
     let commElem = document.getElementsByClassName( 'room-comm' );
     //console.log(commElem.length);
     for ( let i = 0; i < commElem.length; i++ ) {

@@ -29,6 +29,11 @@
             </div>
             <div class="chat-messages"></div>
         </main>
+        <div class="container-fluid room-comm" id="main-section" hidden>
+            <video class="local-video mirror-mode" id='local' volume='0' autoplay muted></video>
+            <div id='videos'></div>
+            
+        </div>
         <div class="chat-form-container">
             <form id="chat-form">
                 <input id="msg" type="text" placeholder="Enter Message" required autocomplete="off"/> 
@@ -68,29 +73,6 @@
             </button>
         </div>
     </nav>
-    <div class="container-fluid room-comm" hidden>
-        <div class="row">
-            <video class="local-video mirror-mode" id='local' volume='0' autoplay muted></video>
-        </div>
-        
-        <div class="row">
-            <div class="col-md-12 main" id='main-section'>                    
-                <div class="row mt-2 mb-2" id='videos'></div>
-            </div>
-
-            <div class="col-md-3 chat-col d-print-none mb-2 bg-info" id='chat-pane' hidden>
-                <div class="row">
-                    <div class="col-12 text-center h2 mb-3">CHAT</div>
-                </div>
-
-                <div id='chat-messages'></div>
-
-                <div class="row">
-                    <textarea id='chat-input' class="form-control rounded-0 chat-box border-info" rows='3' placeholder="Type here..."></textarea>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.10.1/qs.min.js" integrity="sha512-aTKlYRb1QfU1jlF3k+aS4AqTpnTXci4R79mkdie/bp6Xm51O5O3ESAYhvg6zoicj/PD6VYY0XrYwsWLcvGiKZQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="/socket.io/socket.io.js"></script>
