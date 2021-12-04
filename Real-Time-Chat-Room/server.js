@@ -20,6 +20,7 @@ io.on('connection', socket => {
         const user = userJoin(socket.id, username, room);
         //console.log(user.id); //generate random id of 20 chars
         socket.join(user.room);
+        //console.log(getRoomUsers('JavaScript')[0].id);
 
         // Welcome current user
         socket.emit('message', formatMessage(botName,'', 'Welcome to ChatCord',''));
@@ -27,6 +28,10 @@ io.on('connection', socket => {
         // Broadcast when a user connects
         socket.broadcast.to(user.room).emit('message', formatMessage(botName, '', `${user.username} has joined the chat`,''));
         
+        if(getRoomUsers(user.room).length>1){
+            socket.to(getRoomUsers(user.room)[0].id).emit('setVideocallOption');
+        }
+
         io.to(user.id).emit('user-id',socket.id);
 
         // Send users and room info
@@ -71,6 +76,7 @@ io.on('connection', socket => {
 
     });
 
+    // video call starts here
     socket.on('joinCall', ({conferenceroom,sendto}) => {
         const user = getCurrentUser(socket.id);
         socket.join(conferenceroom);

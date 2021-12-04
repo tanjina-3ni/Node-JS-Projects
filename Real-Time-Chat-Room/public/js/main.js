@@ -55,6 +55,7 @@ socket.on('connect',()=>{
 
 // 
 let users = [];
+var host;
 let member;
 socket.on('user-id',ID=>{
     userID = ID;
@@ -74,7 +75,6 @@ socket.on('roomUsers', ({ room, users}) => {
 socket.on('message', message => {
     //console.log(message);
     outputMessage(message);
-
     // Scroll down
     chatMessages.scrollTop = chatMessages.scrollHeight;
 });
@@ -102,82 +102,26 @@ chatForm.addEventListener('submit', e => {
 
 });
 
-// Output message to DOM
-function outputMessage(message) {
-    const div = document.createElement('div');
-    div.classList.add('message');
-    if(userID===message.userid){
-        div.innerHTML = `<div id="send-message">
-            <p class="meta">${message.username} <span>${message.time}</span><span>${message.status}</span></p>
-            <p class="text">
-            ${message.text}
-            </p>
-        </div>`;
-    }
-    else{
-        div.innerHTML = `<div id="received-message">
-            <p class="meta">${message.username} <span>${message.status}</span><span>${message.time}</span></p>
-            <p class="text">
-            ${message.text}
-            </p>
-        </div>`;
-    }
-   
-    document.querySelector('.chat-messages').appendChild(div);
-}
-
-// Add room name to DOM
-function outputRoomName(room) {
-    roomName.innerText = room;
-}
-
-// Add users to DOM
-function outputUsers(users) {
-    // for(i=0;i<users.length;i++){
-    //     console.log(users[i].id);
-    //     console.log(userID);
-    //     if(users[i].id!=userID){
-    //         console.log(users[i].username);
-    //     }
-    // }
-    //console.log(users);
-    
-    userList.innerHTML = `
-    ${users.map(user => `<li>${user.username}</li>`).join('')}
-  `;
-    
-    const all = { id:"", username:"All" };
-    users.unshift(all);
-
-    select.innerHTML = `
-        ${users.map(user => `<option value='${user.id}'>${user.username}</option>`).join('')}
-    `;
-    users.shift(all);
-    
-}
-
-// onclick="createRoom('${user.id}');"
-let sendto = "";
-function sendadd(){
-    sendto = select.value; 
-}
 
 // video call
 
 var pc = [];
 var myStream = '';
 var conferenceroom;
+
+socket.on('setVideocallOption', ()=>{
+    video.style = 'display:block';
+});
+
 video.addEventListener('click', async() => {
     //socket.emit('start_call', room);
     conferenceroom = 1;
     //console.log(member);
-    if(member>0){
-        socket.emit('joinCall', ({conferenceroom,
-            sendto}));
-    }
-    else{
-        alert('No one is available');
-    }
+    
+    socket.emit('joinCall', ({
+        conferenceroom,
+        sendto
+    }));
 });
 
 socket.on('room_created', async () => {
@@ -190,6 +134,7 @@ socket.on('room_created', async () => {
 
 socket.on('videocall-room',(conferenceroom) => {
     //console.log(' room_created');
+    //video.style = 'display: none';
     acc.style = 'display: block; padding:5px; font-size: 18px; background-color: green; color: white';
     reject.style = 'display: block; padding:5px; font-size: 18px; background-color: red; color: white';
     acc.addEventListener('click', async() => {
@@ -257,6 +202,68 @@ socket.on( 'sdp', async ( data ) => {
     }
 } );
 
+// chatroom functions
+// Output message to DOM
+function outputMessage(message) {
+    const div = document.createElement('div');
+    div.classList.add('message');
+    if(userID===message.userid){
+        div.innerHTML = `<div id="send-message">
+            <p class="meta">${message.username} <span>${message.time}</span><span>${message.status}</span></p>
+            <p class="text">
+            ${message.text}
+            </p>
+        </div>`;
+    }
+    else{
+        div.innerHTML = `<div id="received-message">
+            <p class="meta">${message.username} <span>${message.status}</span><span>${message.time}</span></p>
+            <p class="text">
+            ${message.text}
+            </p>
+        </div>`;
+    }
+   
+    document.querySelector('.chat-messages').appendChild(div);
+}
+
+// Add room name to DOM
+function outputRoomName(room) {
+    roomName.innerText = room;
+}
+
+// Add users to DOM
+function outputUsers(users) {
+    // for(i=0;i<users.length;i++){
+    //     console.log(users[i].id);
+    //     console.log(userID);
+    //     if(users[i].id!=userID){
+    //         console.log(users[i].username);
+    //     }
+    // }
+    //console.log(users);
+    
+    userList.innerHTML = `
+    ${users.map(user => `<li>${user.username}</li>`).join('')}
+  `;
+    
+    const all = { id:"", username:"All" };
+    users.unshift(all);
+
+    select.innerHTML = `
+        ${users.map(user => `<option value='${user.id}'>${user.username}</option>`).join('')}
+    `;
+    users.shift(all);
+    
+}
+
+// onclick="createRoom('${user.id}');"
+let sendto = "";
+function sendadd(){
+    sendto = select.value; 
+}
+
+// video call functions
 function init( createOffer, partnerName ) {
     pc[partnerName] = new RTCPeerConnection( getIceServer() );
 
@@ -287,8 +294,6 @@ function init( createOffer, partnerName ) {
         } );
     }
 
-
-
     //create offer
     if ( createOffer ) {
         console.log(pc);
@@ -303,14 +308,10 @@ function init( createOffer, partnerName ) {
         //console.log(pc[partnerName]);
     }
 
-
-
     //send ice candidate to partnerNames
     pc[partnerName].onicecandidate = ( { candidate } ) => {
         socket.emit( 'ice candidates', { candidate: candidate, to: partnerName, sender: userID } );
     };
-
-
 
     //add
     pc[partnerName].ontrack = ( e ) => {
@@ -347,8 +348,6 @@ function init( createOffer, partnerName ) {
         }
     };
 
-
-
     pc[partnerName].onconnectionstatechange = ( d ) => {
         switch ( pc[partnerName].iceConnectionState ) {
             case 'disconnected':
@@ -362,8 +361,6 @@ function init( createOffer, partnerName ) {
         }
     };
 
-
-
     pc[partnerName].onsignalingstatechange = ( d ) => {
         switch ( pc[partnerName].signalingState ) {
             case 'closed':
@@ -374,7 +371,6 @@ function init( createOffer, partnerName ) {
     };
 }
 
-// video call functions
 function getAndSetUserStream() {
     chatContainer.style = 'display: none';
     let commElem = document.getElementsByClassName( 'room-comm' );
@@ -414,33 +410,6 @@ function setLocalStream( stream, mirrorMode = true ) {
     const localVidElem = document.getElementById( 'local' );
     localVidElem.srcObject = stream;
     mirrorMode ? localVidElem.classList.add( 'mirror-mode' ) : localVidElem.classList.remove( 'mirror-mode' );
-}
-
-function getQString( url = '', keyToReturn = '' ) {
-    url = url ? url : location.href;
-    let queryStrings = decodeURIComponent( url ).split( '#', 2 )[0].split( '?', 2 )[1];
-
-    if ( queryStrings ) {
-        let splittedQStrings = queryStrings.split( '&' );
-
-        if ( splittedQStrings.length ) {
-            let queryStringObj = {};
-
-            splittedQStrings.forEach( function ( keyValuePair ) {
-                let keyValue = keyValuePair.split( '=', 2 );
-
-                if ( keyValue.length ) {
-                    queryStringObj[keyValue[0]] = keyValue[1];
-                }
-            } );
-
-            return keyToReturn ? ( queryStringObj[keyToReturn] ? queryStringObj[keyToReturn] : null ) : queryStringObj;
-        }
-
-        return null;
-    }
-
-    return null;
 }
 
 function adjustVideoElemSize() {
