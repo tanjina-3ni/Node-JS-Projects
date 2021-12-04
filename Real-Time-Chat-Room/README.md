@@ -1,17 +1,18 @@
 # Chat Room
 
-This is a realtime chat app. Connected users in a room can communicate. They can send private message to a specific user as well.
+This is a realtime chat app. Connected users in a room can communicate. They can send private message to a specific user as well. The users can make video call in group or person to person.
 
 ## Tools
 - Node.js 
 - Express 
 - Socket.io 
 - Vanilla JS (frontend)
+- WEBRTC (for video call)
 
 ## Features
 - Chat inside rooms
 - Private message 
-- Private video call (Peer to Peer)
+- Private video call ( both in group and Peer to Peer)
 
 ## Installation Process
 
@@ -24,3 +25,4 @@ This is a realtime chat app. Connected users in a room can communicate. They can
 - nodemon server.js <br>
 OR <br>
 - npm run dev <br>
+
