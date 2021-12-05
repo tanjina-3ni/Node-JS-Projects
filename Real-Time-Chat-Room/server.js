@@ -14,6 +14,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 const botName = '';
 let host;
+var videocallStatus = 0;
 // Run when client connects
 io.on('connection', socket => {
     socket.on('joinroom', ({ username, room }) => {
@@ -34,6 +35,11 @@ io.on('connection', socket => {
         }
 
         io.to(user.id).emit('user-id',socket.id);
+
+        // when user comes after starting video call
+        if(videocallStatus==1){
+            socket.emit('videocall join request');
+        }
 
         // Send users and room info
         io.to(user.room).emit('roomUsers', {
@@ -90,6 +96,7 @@ io.on('connection', socket => {
         const user = getCurrentUser(socket.id);
         socket.join(conferenceroom);
         if(sendto==''){
+            videocallStatus = 1;
             sendto = user.room;
             io.to(user.room).emit('message', formatMessage(botName,'', `${user.username} has started video call`,''));
         }
@@ -107,6 +114,11 @@ io.on('connection', socket => {
         //console.log(data)
         //console.log(room);
         socket.to( data.to ).emit( 'newUserStart', { sender: data.sender } );
+    });
+
+    socket.on('videocall join request', (data)=>{
+        //console.log(data.id)
+        socket.to(host).emit('newuser join permission',data);
     });
 
     socket.on( 'sdp', ( data ) => {

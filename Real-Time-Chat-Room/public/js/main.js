@@ -105,7 +105,21 @@ chatForm.addEventListener('submit', e => {
 
 var pc = [];
 var myStream = '';
-var conferenceroom;
+const conferenceroom = 1;
+
+// to newuser; came after starting video call
+socket.on('videocall join request', ()=>{
+    //console.log(userID)
+    socket.emit('videocall join request', ({id: userID}));
+});
+
+socket.on('newuser join permission', (data)=>{
+    alert(data.id +' wants to join');
+    socket.emit('joinCall', ({
+        conferenceroom,
+        sendto: data.id
+    }));
+});
 
 socket.on('setVideocallOption', (flag)=>{
     if(flag==1){
@@ -119,7 +133,7 @@ socket.on('setVideocallOption', (flag)=>{
 
 video.addEventListener('click', async() => {
     //socket.emit('start_call', room);
-    conferenceroom = 1;
+    //conferenceroom = 1;
     //console.log(member);
     
     socket.emit('joinCall', ({
@@ -128,6 +142,7 @@ video.addEventListener('click', async() => {
     }));
 });
 
+// caller/host can see this
 socket.on('room_created', async () => {
     getAndSetUserStream();
     console.log('Socket event callback: room_created');
@@ -145,7 +160,7 @@ socket.on('videocall-room',(conferenceroom) => {
         acc.style = 'display:none;';
         reject.style = 'display:none;';
         //socket.emit('start_call', room);
-        conferenceroom = 1;
+        //conferenceroom = 1;
         //console.log(userID)
         socket.emit('acceptCall', ({
             conferenceroom, 
