@@ -113,8 +113,10 @@ socket.on('videocall join request', ()=>{
     socket.emit('videocall join request', ({id: userID}));
 });
 
+// host can see this
 socket.on('newuser join permission', (data)=>{
-    alert(data.id +' wants to join');
+    //alert(data.id +' wants to join');
+    //console.log(data.username);
     socket.emit('joinCall', ({
         conferenceroom,
         sendto: data.id
@@ -155,7 +157,9 @@ socket.on('videocall-room',(conferenceroom) => {
     //console.log(' room_created');
     //video.style = 'display: none';
     acc.style = 'display: block; padding:5px; font-size: 18px; background-color: green; color: white';
+    acc.textContent = 'Accept';
     reject.style = 'display: block; padding:5px; font-size: 18px; background-color: red; color: white';
+    reject.textContent = 'Reject';
     acc.addEventListener('click', async() => {
         acc.style = 'display:none;';
         reject.style = 'display:none;';

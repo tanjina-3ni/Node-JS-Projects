@@ -118,7 +118,8 @@ io.on('connection', socket => {
 
     socket.on('videocall join request', (data)=>{
         //console.log(data.id)
-        socket.to(host).emit('newuser join permission',data);
+        const user = getCurrentUser(data.id);
+        socket.to(host).emit('newuser join permission',user);
     });
 
     socket.on( 'sdp', ( data ) => {
