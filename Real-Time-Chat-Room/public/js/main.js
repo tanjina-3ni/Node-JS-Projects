@@ -9,8 +9,11 @@ const select = document.getElementById('dropdown');
 const video = document.getElementById('video');
 const acc = document.getElementById('acc');
 const reject = document.getElementById('reject');
+const yes = document.getElementById('yes');
+const no = document.getElementById('no');
 const selfname = document.getElementById('selfname');
-
+const acc_rej_div = document.getElementById('acc_rej_div');
+const alert_msg = document.getElementById('alert');
 
 // Get username and room from URL 
 const { username, room } = Qs.parse(location.search, {
@@ -109,18 +112,44 @@ const conferenceroom = 1;
 
 // to newuser; came after starting video call
 socket.on('videocall join request', ()=>{
-    //console.log(userID)
-    socket.emit('videocall join request', ({id: userID}));
+    //console.log('videocall join request');
+    alert_msg.textContent = 'Want to join video call?'
+    yes.style = 'display: block; padding:5px; font-size: 18px; background-color: green; color: white';
+    yes.textContent = 'Yes';
+    no.style = 'display: block; padding:5px; font-size: 18px; background-color: red; color: white';
+    no.textContent = 'No';
+    yes.addEventListener('click', async() => {
+        alert_msg.textContent = '';
+        yes.style = 'display:none;';
+        no.style = 'display:none;';
+        socket.emit('videocall join request', ({id: userID}));
+    });
+
+    no.addEventListener('click', async() => {
+        alert_msg.textContent = '';
+        yes.style = 'display:none;';
+        no.style = 'display:none;';
+    });
 });
 
 // host can see this
 socket.on('newuser join permission', (data)=>{
     //alert(data.id +' wants to join');
-    //console.log(data.username);
-    socket.emit('joinCall', ({
-        conferenceroom,
-        sendto: data.id
-    }));
+    //console.log('newuser join permission');
+    alert_msg.textContent = data.username + ' Wants to Join...';
+    acc.style = 'display: block; padding:5px; font-size: 18px; background-color: green; color: white';
+    acc.textContent = 'Allow';
+    reject.style = 'display: block; padding:5px; font-size: 18px; background-color: red; color: white';
+    reject.textContent = 'Cancel';
+    acc.addEventListener('click', async() => {
+        alert_msg.textContent = '';
+        acc.style = 'display:none;';
+        reject.style = 'display:none;';
+        socket.emit('joinCall', ({
+            conferenceroom,
+            sendto: data.id
+        }));
+    });
 });
 
 socket.on('setVideocallOption', (flag)=>{
@@ -156,16 +185,18 @@ socket.on('room_created', async () => {
 socket.on('videocall-room',(conferenceroom) => {
     //console.log(' room_created');
     //video.style = 'display: none';
+    alert_msg.textContent = 'Incoming Video Call...'
     acc.style = 'display: block; padding:5px; font-size: 18px; background-color: green; color: white';
     acc.textContent = 'Accept';
     reject.style = 'display: block; padding:5px; font-size: 18px; background-color: red; color: white';
     reject.textContent = 'Reject';
     acc.addEventListener('click', async() => {
+        alert_msg.textContent = '';
         acc.style = 'display:none;';
         reject.style = 'display:none;';
         //socket.emit('start_call', room);
         //conferenceroom = 1;
-        //console.log(userID)
+        //console.log('accepted');
         socket.emit('acceptCall', ({
             conferenceroom, 
             receiver: userID
@@ -398,12 +429,6 @@ function init( createOffer, partnerName ) {
 
 function getAndSetUserStream() {
     //chatContainer.style = 'display: none';
-    let commElem = document.getElementsByClassName( 'room-comm' );
-    //console.log(commElem.length);
-    for ( let i = 0; i < commElem.length; i++ ) {
-        commElem[i].attributes.removeNamedItem( 'hidden' );
-    }
-
     getUserFullMedia().then( ( stream ) => {
         //save my stream
         myStream = stream;

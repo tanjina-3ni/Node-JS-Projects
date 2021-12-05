@@ -30,16 +30,11 @@ io.on('connection', socket => {
         
         if(getRoomUsers(user.room).length==2){
             host = getRoomUsers(user.room)[0].id;
-            console.log('on connect '+host);
+            //console.log('on connect '+host);
             socket.to(host).emit('setVideocallOption', 1);
         }
 
         io.to(user.id).emit('user-id',socket.id);
-
-        // when user comes after starting video call
-        if(videocallStatus==1){
-            socket.emit('videocall join request');
-        }
 
         // Send users and room info
         io.to(user.room).emit('roomUsers', {
@@ -47,7 +42,10 @@ io.on('connection', socket => {
             users: getRoomUsers(user.room),
         });
 
-        
+        // when user comes after starting video call
+        if(videocallStatus==1){
+            io.to(user.id).emit('videocall join request');
+        }
     });
 
     // Listen for chat message
@@ -79,6 +77,7 @@ io.on('connection', socket => {
         if (user) {
             if(getRoomUsers(user.room).length==1){
                 socket.to(host).emit('setVideocallOption', 0);
+                videocallStatus = 0;
             }
             io.to(user.room).emit('message', formatMessage(botName,'', `${user.username} has left the chat`,''));
         }
@@ -91,8 +90,16 @@ io.on('connection', socket => {
         //console.log(host);
     });
 
+
     // video call starts here
+    socket.on('videocall join request', (data)=>{
+        console.log('on videocall join request');
+        const user = getCurrentUser(data.id);
+        socket.to(host).emit('newuser join permission',user);
+    });
+
     socket.on('joinCall', ({conferenceroom,sendto}) => {
+        console.log('joinCall');
         const user = getCurrentUser(socket.id);
         socket.join(conferenceroom);
         if(sendto==''){
@@ -105,7 +112,7 @@ io.on('connection', socket => {
       });
 
     socket.on('acceptCall', (data) => {
-        //console.log(`Joining room ${data.conferenceroom} and emitting room_joined socket event`);
+        console.log(`Joining room ${data.conferenceroom} and emitting room_joined socket event`);
         socket.join(data.conferenceroom);
         socket.to(data.conferenceroom).emit('room_joined', data);
     });
@@ -114,12 +121,6 @@ io.on('connection', socket => {
         //console.log(data)
         //console.log(room);
         socket.to( data.to ).emit( 'newUserStart', { sender: data.sender } );
-    });
-
-    socket.on('videocall join request', (data)=>{
-        //console.log(data.id)
-        const user = getCurrentUser(data.id);
-        socket.to(host).emit('newuser join permission',user);
     });
 
     socket.on( 'sdp', ( data ) => {
