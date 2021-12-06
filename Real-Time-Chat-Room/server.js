@@ -28,9 +28,9 @@ io.on('connection', socket => {
         // Broadcast when a user connects
         socket.broadcast.to(user.room).emit('message', formatMessage(botName, '', `${user.username} has joined the chat`,''));
         
-        if(getRoomUsers(user.room).length==2){
+        if(getRoomUsers(user.room).length>1){
             host = getRoomUsers(user.room)[0].id;
-            //console.log('on connect '+host);
+            
             socket.to(host).emit('setVideocallOption', 1);
         }
 
@@ -99,9 +99,10 @@ io.on('connection', socket => {
     });
 
     socket.on('joinCall', ({conferenceroom,sendto}) => {
-        console.log('joinCall');
+        //console.log('joinCall');
         const user = getCurrentUser(socket.id);
         socket.join(conferenceroom);
+        //console.log(getRoomUsers(user.conferenceroom));
         if(sendto==''){
             videocallStatus = 1;
             sendto = user.room;
