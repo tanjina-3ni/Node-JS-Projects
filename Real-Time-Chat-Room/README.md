@@ -26,3 +26,7 @@ This is a realtime chat app. Connected users in a room can communicate. They can
 OR <br>
 - npm run dev <br>
 
+## References
+
+- [Chat room](https://github.com/bradtraversy/chatcord)
+- [Video call](https://github.com/amirsanni/Video-Call-App-NodeJS)
