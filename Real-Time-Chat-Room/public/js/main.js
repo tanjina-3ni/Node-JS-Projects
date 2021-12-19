@@ -14,6 +14,7 @@ const no = document.getElementById('no');
 const selfname = document.getElementById('selfname');
 const acc_rej_div = document.getElementById('acc_rej_div');
 const alert_msg = document.getElementById('alert');
+const end_call = document.getElementById('end_call');
 
 // Get username and room from URL 
 const { username, room } = Qs.parse(location.search, {
@@ -150,6 +151,7 @@ socket.on('newuser join permission', (data)=>{
             sendto: data.id
         }));
     });
+
 });
 
 socket.on('setVideocallOption', (flag)=>{
@@ -197,11 +199,17 @@ socket.on('videocall-room',(conferenceroom) => {
         //socket.emit('start_call', room);
         //conferenceroom = 1;
         //console.log('accepted');
+        end_call.style = 'display: block; padding:5px; font-size: 18px; background-color: red; color: white';
+        end_call.textContent = 'End Call';
         socket.emit('acceptCall', ({
             conferenceroom, 
-            receiver: userID
+            receiver: userID,
+            username
         }));
         getAndSetUserStream();
+    });
+    end_call.addEventListener('click', ()=>{
+        console.log('call ended');
     });
 });
   
@@ -217,17 +225,17 @@ socket.on('room_joined', (data) => {
     //isCaller = 0;
 });
 
-socket.on( 'newUserStart', ( data ) => {
+socket.on('newUserStart', (data) => {
     console.log('newUserStart') //see new user
     pc.push( data.sender );
     init( false, data.sender );
 });
 
-socket.on( 'ice candidates', async ( data ) => {
+socket.on('ice candidates', async(data) => {
     data.candidate ? await pc[data.sender].addIceCandidate( new RTCIceCandidate( data.candidate ) ) : '';
 } );
 
-socket.on( 'sdp', async ( data ) => {
+socket.on('sdp', async(data) => {
     if ( data.description.type === 'offer' ) {
         data.description ? await pc[data.sender].setRemoteDescription( new RTCSessionDescription( data.description ) ) : '';
         

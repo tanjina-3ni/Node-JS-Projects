@@ -93,7 +93,7 @@ io.on('connection', socket => {
 
     // video call starts here
     socket.on('videocall join request', (data)=>{
-        console.log('on videocall join request');
+        //console.log('on videocall join request');
         const user = getCurrentUser(data.id);
         socket.to(host).emit('newuser join permission',user);
     });
@@ -110,10 +110,10 @@ io.on('connection', socket => {
         }
         socket.emit('room_created');
         socket.to(sendto).emit('videocall-room',conferenceroom);
-      });
+    });
 
     socket.on('acceptCall', (data) => {
-        console.log(`Joining room ${data.conferenceroom} and emitting room_joined socket event`);
+        //console.log(`Joining room ${data.conferenceroom} and emitting room_joined socket event`);
         socket.join(data.conferenceroom);
         socket.to(data.conferenceroom).emit('room_joined', data);
     });
@@ -124,16 +124,16 @@ io.on('connection', socket => {
         socket.to( data.to ).emit( 'newUserStart', { sender: data.sender } );
     });
 
-    socket.on( 'sdp', ( data ) => {
+    socket.on('sdp', (data) => {
         //console.log('sdp')
-        socket.to( data.to ).emit( 'sdp', { description: data.description, sender: data.sender } );
-    } );
+        socket.to(data.to).emit('sdp', { description: data.description, sender: data.sender } );
+    });
 
 
-    socket.on( 'ice candidates', ( data ) => {
+    socket.on('ice candidates', (data) => {
         //console.log('ice candidates')
-        socket.to( data.to ).emit( 'ice candidates', { candidate: data.candidate, sender: data.sender } );
-    } );
+        socket.to(data.to).emit( 'ice candidates', { candidate: data.candidate, sender: data.sender } );
+    });
     
 });
 
