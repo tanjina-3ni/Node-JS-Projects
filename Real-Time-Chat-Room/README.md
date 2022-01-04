@@ -28,7 +28,9 @@ OR <br>
 
 ## Description
 
-
+In this short project chatroom concept has been implemented using nodejs. Here people can join in different room to communicate. 
+<br><br>
+<img src="https://github.com/tanjina-3ni/Node-JS-Projects/blob/main/Real-Time-Chat-Room/Images/Screenshot%20(9).png" alt="cplusplus" width="450" height="300"/>
 
 ## References
 
