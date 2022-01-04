@@ -40,13 +40,13 @@ In this project, users can select different rooms by clicking the dropdown bar a
 <p align="center"><img src="https://github.com/tanjina-3ni/Node-JS-Projects/blob/main/Real-Time-Chat-Room/Images/Screenshot%20(10).png" alt="cplusplus" width="800" height="700"/></p>
 <p align="center">Fig 2: Frist user in the room</p> <br>
 
-First user joinned in the room will get an welcome message and user list is empty. After joinning the second user, he will get an welcome message and the name of first user will be displayed on userlist (right side bar) and the dropdown list (bottom right).
+The first user joined in the room will get a welcome message and the user list is empty. After joining the second user, he will get a welcome message and the name of the first user will be displayed on the user list (right sidebar) and the dropdown list (bottom right).
 
 <br><br>
 <p align="center"><img src="https://github.com/tanjina-3ni/Node-JS-Projects/blob/main/Real-Time-Chat-Room/Images/Screenshot%20(11).png" alt="cplusplus" width="800" height="700"/></p>
 <p align="center">Fig 2: Second user in the room</p> <br>
 
-The first user will get a message that the second user has joinned and the name of second user will be displayed on userlist (left side bar) and the dropdown list (bottom right).
+The first user will get a message that the second user has joined and the name of the second user will be displayed on the user list (left sidebar) and the dropdown list (bottom right).
 
 <br><br>
 <p align="center"><img src="https://github.com/tanjina-3ni/Node-JS-Projects/blob/main/Real-Time-Chat-Room/Images/Screenshot%20(12).png" alt="cplusplus" width="800" height="700"/></p>
