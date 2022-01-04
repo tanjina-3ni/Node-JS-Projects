@@ -1,6 +1,6 @@
 # Chat Room
 
-This is a realtime chat app. Connected users in a room can communicate. They can send private message to a specific user as well. The users can make video call in group or person to person.
+This is a real-time chat app. Connected users in a room can communicate. They can send a private message to a specific user as well. The users can make a video call in a group or person to person.
 
 ## Tools
 - Node.js 
@@ -34,7 +34,7 @@ In this short project, Chatroom concept has been implemented using nodejs. Here 
 <p align="center"><img src="https://github.com/tanjina-3ni/Node-JS-Projects/blob/main/Real-Time-Chat-Room/Images/Screenshot%20(9).png" alt="cplusplus" width="450" height="300"/></p>
 <p align="center">Fig 1: Join in room</p> <br>
 
-In this project, users can select different room clicking the dropdown bar and they have to fill up the name field. After joinning the room, they will get an welcome message and the other people in the room will receive a message that who has joinned the chat. The name of the users in the room will be displayed in userlist (left side bar) and in the user dropdown list (bottom right). In this room, they can send message or create video conference in group as well as in private. But by default video call button will be showed only for first joinned user. After first user leaving the room, the second user will be the host and he will have the video call button. To call/ send message in private they have to select the specific user from the bottom right user dropdown list.
+In this project, users can select different rooms by clicking the dropdown bar and they have to fill up the name field. After joining the room, they will get a welcome message and the other people in the room will receive a message that who has joined the chat. The name of the users in the room will be displayed in the user list (left sidebar) and the user dropdown list (bottom right). In this room, they can send a message or create video conferences in groups as well as in private. But by default video call button will be shown only for the first joined user. After the first user leaves the room, the second user will be the host and he will have the video call button. To call/ send a message in private they have to select the specific user from the bottom right user dropdown list.
 
 <br><br>
 <p align="center"><img src="https://github.com/tanjina-3ni/Node-JS-Projects/blob/main/Real-Time-Chat-Room/Images/Screenshot%20(10).png" alt="cplusplus" width="800" height="700"/></p>
