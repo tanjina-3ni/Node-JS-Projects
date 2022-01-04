@@ -28,11 +28,29 @@ OR <br>
 
 ## Description
 
-In this short project, Chatroom concept has been implemented using nodejs. Here people can join in different room to communicate. For example, a company is taking interview for different posts of IT sector. Some jobseekers have applied for the post of Javascript and the company wants to keep them in seperate room. So, javascript people will join in javascript room, python people will join in python and so on. <br>
-In this project, they can select different room clicking the dropdown bar.
+In this short project, Chatroom concept has been implemented using nodejs. Here people can join in different room to communicate. For example, a company is taking interview for different posts of IT sector. Some jobseekers have applied for the post of Javascript and the company wants to keep them in seperate room. So, javascript people will join in javascript room, python people will join in python and so on.
+
 <br><br>
 <p align="center"><img src="https://github.com/tanjina-3ni/Node-JS-Projects/blob/main/Real-Time-Chat-Room/Images/Screenshot%20(9).png" alt="cplusplus" width="450" height="300"/></p>
-<p align="center">Fig 1: Join in Room</p> <br>
+<p align="center">Fig 1: Join in room</p> <br>
+
+In this project, users can select different room clicking the dropdown bar and they have to fill up the name field. After joinning the room, they will get an welcome message and the other people in the room will receive a message that who has joinned the chat. The name of the users in the room will be displayed in userlist (left side bar) and in the user dropdown list (bottom right). In this room, they can send message or create video conference in group as well as in private. But by default video call button will be showed only for first joinned user. After first user leaving the room, the second user will be the host and he will have the video call button. To call/ send message in private they have to select the specific user from the bottom right user dropdown list.
+
+<br><br>
+<p align="center"><img src="https://github.com/tanjina-3ni/Node-JS-Projects/blob/main/Real-Time-Chat-Room/Images/Screenshot%20(10).png" alt="cplusplus" width="800" height="700"/></p>
+<p align="center">Fig 2: Frist user in the room</p> <br>
+
+First user joinned in the room will get an welcome message and user list is empty. After joinning the second user, he will get an welcome message and the name of first user will be displayed on userlist (right side bar) and the dropdown list (bottom right).
+
+<br><br>
+<p align="center"><img src="https://github.com/tanjina-3ni/Node-JS-Projects/blob/main/Real-Time-Chat-Room/Images/Screenshot%20(11).png" alt="cplusplus" width="800" height="700"/></p>
+<p align="center">Fig 2: Second user in the room</p> <br>
+
+The first user will get a message that the second user has joinned and the name of second user will be displayed on userlist (left side bar) and the dropdown list (bottom right).
+
+<br><br>
+<p align="center"><img src="https://github.com/tanjina-3ni/Node-JS-Projects/blob/main/Real-Time-Chat-Room/Images/Screenshot%20(12).png" alt="cplusplus" width="800" height="700"/></p>
+<p align="center">Fig 2: Frist user after joinning second user in the room</p> <br>
 
 
 ## References
