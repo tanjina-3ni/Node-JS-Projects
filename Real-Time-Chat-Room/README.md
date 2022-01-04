@@ -28,12 +28,12 @@ OR <br>
 
 ## Description
 
-In this short project, Chatroom concept has been implemented using nodejs. Here people can join in different room to communicate. 
+In this short project, Chatroom concept has been implemented using nodejs. Here people can join in different room to communicate. For example, a company is taking interview for different posts of IT sector. Some jobseekers have applied for the post of Javascript and the company wants to keep them in seperate room. So, javascript people will join in javascript room, python people will join in python and so on. <br>
+In this project, they can select different room clicking the dropdown bar.
 <br><br>
 <p align="center"><img src="https://github.com/tanjina-3ni/Node-JS-Projects/blob/main/Real-Time-Chat-Room/Images/Screenshot%20(9).png" alt="cplusplus" width="450" height="300"/></p>
 <p align="center">Fig 1: Join in Room</p> <br>
-For example, a company is taking interview for different posts of IT sector. Some jobseekers have applied for the post of Javascript and the company wants to keep them in seperate room. So, javascript people will join in javascript room, python people will join in python and so on. <br>
-In this project, they can select different room clicking the dropdown bar.
+
 
 ## References
 
