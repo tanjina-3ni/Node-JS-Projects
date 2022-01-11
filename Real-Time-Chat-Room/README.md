@@ -50,7 +50,7 @@ The first user will get a message that the second user has joined and the name o
 
 <br><br>
 <p align="center"><img src="https://github.com/tanjina-3ni/Node-JS-Projects/blob/main/Real-Time-Chat-Room/Images/Screenshot%20(12).png" width="800" height="700"/></p>
-<p align="center">Fig 4: Frist user after joining second user in the room</p> <br>
+<p align="center">Fig 4: First user after joining second user in the room</p> <br>
 
 
 ## References
